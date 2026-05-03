@@ -1,0 +1,237 @@
+{
+  "name": "Morning News Digest",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://feeds.feedburner.com/TechCrunch",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -160,
+        48
+      ],
+      "id": "606d6a0d-32c9-49ef-ae1e-e8a070ce073d",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.bbci.co.uk/news/rss.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -160,
+        -112
+      ],
+      "id": "8b9f30d6-6955-4529-a228-7f036ab1a3a8",
+      "name": "RSS Read3",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -416,
+        -32
+      ],
+      "id": "a670505b-0f3f-4503-abcd-844f3b68731f",
+      "name": "Schedule Trigger",
+      "disabled": true
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        96,
+        -32
+      ],
+      "id": "3e9dbf0d-ac4e-4de0-965a-21f070b2dcd3",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        304,
+        -32
+      ],
+      "id": "6c0898c7-f4c0-4746-85d3-adfd04648ec1",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e5ca3a54-653b-4f52-82c1-a2e58dd1e038",
+              "name": "article_line",
+              "value": "=📰 {{ $json.title }}\n🔗 {{ $json.link }}\n📅 {{ $json.pubDate }}\n─────────────────",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        512,
+        -32
+      ],
+      "id": "52c9eb36-da2a-4cf2-a18f-79264a9deb56",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {
+          "includeBinaries": false
+        }
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        736,
+        -32
+      ],
+      "id": "a58896d4-5e0f-47d9-a9f1-39f21ecbd215",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "sendTo": "lehoucheasma@gmail.com",
+        "subject": "☀️ Morning News Digest",
+        "message": "={{ $json.data.map(item => item.article_line).join('<br><br>') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        944,
+        -32
+      ],
+      "id": "1c882fcf-c33e-4926-a34c-bf1b24049902",
+      "name": "Send a message",
+      "webhookId": "97e9fbcd-23b5-44f4-943f-293dc5b8636c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GeyQoGTuPB3RfOT1",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "RSS Read3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Read3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "471f28bf-a123-4d87-b063-f8de1a7ae867",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d5701260e8c6cf257a13aba268c3b257077603b8405fcbac5ddcc33a5c2d40b5"
+  },
+  "id": "br9frxDKAZReY4AP",
+  "tags": []
+}
