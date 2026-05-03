@@ -1,0 +1,155 @@
+{
+  "name": "AI Telegram Business Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "5228011988",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        224
+      ],
+      "id": "93b162a1-015b-4916-b6bb-1db9d3bf1e11",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "5228011988",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        0
+      ],
+      "id": "05b8ab2e-f990-430a-837f-51436ab5033f",
+      "name": "Send a text message",
+      "webhookId": "e48fec9d-79cc-46d5-b7d9-8ed422a6578e",
+      "credentials": {
+        "telegramApi": {
+          "id": "LIpJ4qngpEmLI3C0",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message.text }}",
+        "options": {
+          "systemMessage": "You are a friendly and professional AI assistant for a restaurant called \"La Bella Italia\".\n\nYour job is to help customers with:\n- 📋 Menu information (appetizers, mains, desserts, drinks)\n- 🕐 Opening hours: Monday-Saturday 12pm-11pm, Sunday 12pm-9pm\n- 📍 Location: 123 Main Street, City Center\n- 📞 Reservations: guide customers to call +1234567890 or book via website\n- 🥗 Dietary options: we have vegetarian, vegan and gluten-free options\n- 💰 Price range: starters $5-12, mains $15-28, desserts $5-9\n\nRules:\n- Always be warm, friendly and welcoming\n- Keep answers short and clear\n- If you don't know something, say \"Let me connect you with our team\" and give the phone number\n- Never make up information not provided above\n- Always end with a friendly closing like \"See you soon! 🍽️\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "08cc9a2c-6a2a-45c3-8d52-af6bf52d4c55",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "fe231a8c-050c-4d13-b8a8-67ddfc969a9a",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "NxGg9pXaMh2cV7ji",
+          "name": "Groq account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "06bbbb9e-a8f9-4587-8781-edc45e4ba4ff",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "288c7ad5-968c-4749-890a-269c79e5f96b",
+      "name": "Webhook",
+      "webhookId": "06bbbb9e-a8f9-4587-8781-edc45e4ba4ff"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "82e8b8df-7b32-4636-9310-14001b78e999",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d5701260e8c6cf257a13aba268c3b257077603b8405fcbac5ddcc33a5c2d40b5"
+  },
+  "id": "MUbrML8z018G61Xj",
+  "tags": []
+}
