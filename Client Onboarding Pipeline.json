@@ -1,0 +1,245 @@
+{
+  "name": "Client Onboarding Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "62f8e6a8-5860-4d6f-8ef2-b834371990cb",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d1f21f15-c756-4f3e-ab4b-b78e5498caa0",
+      "name": "Webhook",
+      "webhookId": "62f8e6a8-5860-4d6f-8ef2-b834371990cb"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7aae64f6-579c-4547-995f-6662d9e9f061",
+              "name": "clientName",
+              "value": "={{ $json.body.data.fields.find(f => f.label === \"Full Name\").value }}",
+              "type": "string"
+            },
+            {
+              "id": "e937fba7-bd61-467e-998d-f13df2076309",
+              "name": "clientEmail",
+              "value": "={{ $json.body.data.fields.find(f => f.label === \"Email\").value }}",
+              "type": "string"
+            },
+            {
+              "id": "142f60c4-7df6-4685-a869-5d7d85d09a78",
+              "name": "clientCompany",
+              "value": "={{ $json.body.data.fields.find(f => f.label === \"Company Name\").value }}",
+              "type": "string"
+            },
+            {
+              "id": "08737ff4-425a-4b19-9463-ea84c49120d8",
+              "name": "clientMessage",
+              "value": "={{ $json.body.data.fields.find(f => f.label === \"Message\").value }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b27e2c63-aa94-4f42-a2c0-6d03f4cfdf47",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "357329f2-f83b-80af-9523-e92c81d2698a",
+          "mode": "list",
+          "cachedResultName": "Clients",
+          "cachedResultUrl": "https://www.notion.so/357329f2f83b80af9523e92c81d2698a"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Email|email",
+              "emailValue": "={{ $json.clientEmail }}"
+            },
+            {
+              "key": "Name|title",
+              "title": "={{ $json.clientName }}"
+            },
+            {
+              "key": "Message|rich_text",
+              "textContent": "={{ $json.clientMessage }}"
+            },
+            {
+              "key": "Company|rich_text",
+              "textContent": "={{ $json.clientCompany }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        176
+      ],
+      "id": "68b517e0-052a-466c-a9f4-0d8bbfc9343f",
+      "name": "Create a database page",
+      "credentials": {
+        "notionApi": {
+          "id": "mRaY2APPEYPDpSFL",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "5228011988",
+        "text": "=🎉 New Client Onboarded! \n👤 Name: {{ $json.clientName }} \n📧 Email: {{ $json.clientEmail }} \n🏢 Company: {{ $json.clientCompany }} \n💬 Message: {{ $json.clientMessage }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        416,
+        16
+      ],
+      "id": "bdde03c9-c770-4117-bd74-827c83ab781b",
+      "name": "Send a text message",
+      "webhookId": "aaae4551-07d4-4887-9e23-1840aacc6532",
+      "credentials": {
+        "telegramApi": {
+          "id": "LIpJ4qngpEmLI3C0",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.clientEmail }}",
+        "subject": "=Welcome to our team, {{ $json.clientName }}! 🎉",
+        "message": "=<h2>Welcome {{ $json.clientName }}! 🎉</h2>  <p>Thank you for reaching out to us. We're thrilled to have  <strong>{{ $json.clientCompany }}</strong> on board!</p>  <p>We received your message:<br> <em>{{ $json.clientMessage }}</em></p>  <p>Our team will get back to you within 24 hours.</p>  <p>Best regards,<br> <strong>The Team</strong></p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        304
+      ],
+      "id": "9a9811d1-cc81-4dfb-a50a-718ef065e917",
+      "name": "Send a message",
+      "webhookId": "58369227-d1d1-42d3-8800-059c5ea59ba6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GeyQoGTuPB3RfOT1",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $json.clientName }} - {{ $json.clientCompany }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        416,
+        -144
+      ],
+      "id": "d0d89de5-f6ac-44a5-87ca-7af325b1fa94",
+      "name": "Create folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "eR4dzYiefq5CvWry",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a database page",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "ddf9a916-6952-4ccd-80df-5e9bf8b81168",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d5701260e8c6cf257a13aba268c3b257077603b8405fcbac5ddcc33a5c2d40b5"
+  },
+  "id": "5WZnJ8lnk8Cf4Pec",
+  "tags": []
+}
